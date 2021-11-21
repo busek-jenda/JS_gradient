@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Gradient rotator</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            input {width: 100%;}
+            select {width: 100%;}
+            html {
+                height: 100%;
+            }
+            body {
+                max-height: 100%;
+            }
+        </style>
+    </head>
+    <body id="body" style="background: linear-gradient(0deg, #e43a3a 50%, #941dbf)">
+        <button id="contentBtn" onclick=toggleContent() style='position: fixed; right: 10px; top: 10px;'>Hide</button>
+        <div id="content" style="margin:auto; border: 1px solid black; width: 20%; padding: 2em; font-family: calibri; background-color: white; display: block;">           
+            <h1>Gradient rotator</h1>
+            <p>Dynamic change of background color with JS code.</p>
+            <label>Color 1
+                <input id="colorPicker1" type="color" value="#e43a3a">
+                <span id="pickedColor1">#e43a3a</span>
+                <br>
+                <button onclick=setRandomColor(1)>Random</button>
+            </label>
+            <br>
+            <label>Color 2
+                <input id="colorPicker2" type="color" value="#941dbf">
+                <span id="pickedColor2">#941dbf</span>
+                <br>
+                <button onclick=setRandomColor(2)>Random</button>
+            </label>
+            <br>
+            <label>Ratio
+                <input id="ratio" type="range" min="0" max="100" value='50'>
+                <span id="pickedRatio">50 %</span>
+            </label>
+            <br>
+            <label>Orientation
+                <input value=0 id="orientation" type="range" min="-360" max="360">
+                <span id="pickedOrientation">0°</span>
+            </label>
+            <br>
+            <hr>
+            <button id="rotateStart">Rotate</button>
+            <button id="rotateStop" style="display: none;">Stop</button>
+        </div>
+    </body>
+</html>
+
+
+<script type="text/javascript">
+    var rotateState;
+    var interval = 100;
+
+    document.querySelector("#colorPicker1").onchange = function () {
+        colorChange(1);
+    };
+    document.querySelector("#ratio").onchange = function () {
+        colorChange(1);
+    };
+    document.querySelector("#colorPicker2").onchange = function () {
+        colorChange(2);
+    };
+    document.querySelector("#orientation").onchange = function () {
+        colorChange();
+    };
+    document.querySelector("#rotateStart").onclick = function () {
+        rotateToggle('start', interval);
+        document.querySelector("#rotateStart").style.display = "none";
+        document.querySelector("#rotateStop").style.display = "block";
+    };
+
+    document.querySelector("#rotateStop").onclick = function () {
+        rotateToggle('stop');
+        document.querySelector("#rotateStop").style.display = "none";
+        document.querySelector("#rotateStart").style.display = "block";
+    };
+
+    function getInputs() {
+        pickedColor1 = document.getElementById(`colorPicker1`).value;
+        pickedColor2 = document.getElementById(`colorPicker2`).value;
+        ratio = parseInt(document.getElementById(`ratio`).value);
+        orientation = parseInt(document.getElementById(`orientation`).value);
+
+        return pickedColor1, pickedColor2, ratio, orientation;
+    }
+
+    function setInputs(pickedColor1, pickedColor2, ratio, orientation) {
+        document.getElementById(`colorPicker1`).value = pickedColor1;
+        document.getElementById(`colorPicker2`).value = pickedColor2;
+        document.getElementById(`ratio`).value = ratio;
+        document.getElementById(`orientation`).value = orientation;
+    }
+
+    function setLabels(pickedColor1, pickedColor2, ratio, orientation) {
+        document.getElementById(`pickedColor1`).innerHTML = pickedColor1;
+        document.getElementById(`pickedColor2`).innerHTML = pickedColor2;
+        document.getElementById(`pickedRatio`).innerHTML = ratio + '%';
+        document.getElementById(`pickedOrientation`).innerHTML = orientation + '°';
+    }
+
+    function setStyle(pickedColor1, pickedColor2, ratio, orientation) {
+        document.getElementById("body").style.cssText = `
+  background: linear-gradient(${orientation}deg, ${pickedColor1} ${ratio}%, ${pickedColor2})`;
+    }
+
+    function colorChange() {
+        getInputs();
+        setLabels(pickedColor1, pickedColor2, ratio, orientation);
+        setStyle(pickedColor1, pickedColor2, ratio, orientation);
+
+    }
+
+
+
+    function rotateToggle(state, interval = 100) {
+        if (state === 'start') {
+            rotateState = setInterval(rotate, interval);
+        } else {
+            clearInterval(rotateState);
+    }
+
+    }
+
+    function rotate() {
+        getInputs();
+        var x = orientation;
+        if (x === 360) {
+            x = -359;
+        } else {
+            x = x + 1;
+        }
+
+        //console.log('Angle is: ' + x);
+        orientation = x;
+
+        setStyle(pickedColor1, pickedColor2, ratio, orientation);
+        setInputs(pickedColor1, pickedColor2, ratio, orientation);
+        setLabels(pickedColor1, pickedColor2, ratio, orientation);
+    }
+
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    function setRandomColor(id) {
+        color = getRandomColor();
+        document.getElementById(`colorPicker${id}`).value = color;
+        document.getElementById(`pickedColor${id}`).innerHTML = color;
+        colorChange()
+    }
+
+    function toggleContent() {
+        // Get the DOM reference
+        var contentId = document.getElementById("content");
+        var contentBtn = document.getElementById("contentBtn");
+        // Toggle 
+        if (contentId.style.display === "block") {
+            contentId.style.display = "none";
+            contentBtn.innerHtml = 'Show';
+        } else {
+            contentId.style.display = "block";
+            contentBtn.innerHtml = 'Hide';
+        }
+    }
+
+
+</script>
